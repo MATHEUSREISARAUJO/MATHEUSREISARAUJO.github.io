@@ -1,0 +1,14 @@
+# Arquivos locais do sistema e do editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+
+# Configurações locais
+.env
+.env.*
+!.env.example
+
+# Pacote de entrega gerado localmente
+/memorias-de-cozinha.zip
