@@ -1,6 +1,8 @@
 const sequence = document.querySelector('.bolo-sequencia');
 const stage = sequence.querySelector('.bolo-palco');
-const cards = [...sequence.querySelectorAll('.bolo-ingredientes li')];
+const controls = stage.querySelector('.bolo-controles');
+const button = controls.querySelector('button');
+const chapter = controls.querySelector('.bolo-etapa');
 const canvas = stage.querySelector('canvas');
 const brush = canvas.getContext('2d');
 const motion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -23,7 +25,13 @@ const crumbs = Array.from({length: 64}, (_, index) => ({
   size: .002 + (index % 5) * .0011,
   coconut: index % 3 === 0
 }));
+const duration = 20000;
+const chapters = ['Bolo inteiro', 'Cobertura de coco', 'Massa de leite de coco', 'Tapioca granulada'];
 let frame = 0;
+let elapsed = 0;
+let lastTime = null;
+let playing = false;
+let activeChapter = -1;
 
 function blendViews(width, height, turn) {
   const current = Math.floor(turn) % 4;
@@ -35,7 +43,7 @@ function blendViews(width, height, turn) {
   }
 }
 
-function separateLayers(amount, width, height) {
+function separateLayers(amount, emphasis, width, height) {
   const backdrop = brush.createRadialGradient(.5, .5, .08, .5, .5, .69);
   backdrop.addColorStop(0, '#30241d');
   backdrop.addColorStop(1, '#100d0c');
@@ -56,19 +64,19 @@ function separateLayers(amount, width, height) {
   }
 
   for (const crumb of crumbs) {
-    const spread = crumb.spread * amount;
+    const spread = crumb.spread * amount * (1 + emphasis * .65);
     const x = crumb.x + crumb.drift * spread;
     const y = crumb.y + Math.cos(crumb.x * 39) * spread;
     brush.globalAlpha = clamp(amount * 1.6) * .8;
-    brush.fillStyle = crumb.coconut ? '#fff0d5' : '#dcb889';
+    brush.fillStyle = crumb.coconut ? '#fff0d5' : '#ffd993';
     brush.beginPath();
-    brush.ellipse(x, y, crumb.size, crumb.size * (crumb.coconut ? .42 : .82), crumb.drift, 0, Math.PI * 2);
+    brush.ellipse(x, y, crumb.size * (1 + emphasis), crumb.size * (crumb.coconut ? .42 : .82) * (1 + emphasis), crumb.drift, 0, Math.PI * 2);
     brush.fill();
   }
   brush.globalAlpha = 1;
 }
 
-function drawCake() {
+function drawCake(now) {
   frame = 0;
   if (!brush || !photoBrush || !angles.naturalWidth || motion.matches) return;
   const width = Math.floor(angles.naturalWidth / 2);
@@ -78,26 +86,53 @@ function drawCake() {
     canvas.height = photo.height = height;
   }
 
-  const first = cards[0].getBoundingClientRect();
-  const last = cards[cards.length - 1].getBoundingClientRect();
-  const cue = innerHeight * (innerWidth <= 650 ? .67 : .55);
-  const start = first.top + first.height / 2;
-  const finish = last.top + last.height / 2;
-  const progress = clamp((cue - start) / Math.max(1, finish - start));
-  const separation = ease(clamp((progress - .2) / .72));
+  if (playing && lastTime !== null) elapsed = Math.min(duration, elapsed + now - lastTime);
+  if (playing) lastTime = now;
+  const progress = elapsed / duration;
+  const angle = Math.min(3, Math.floor(progress * 4));
+  const separation = ease(clamp((progress - .25) / .47));
+  const emphasis = ease(clamp((progress - .75) / .25));
+  if (angle !== activeChapter) {
+    activeChapter = angle;
+    chapter.textContent = chapters[angle];
+  }
 
   blendViews(width, height, progress * 4);
   brush.setTransform(width, 0, 0, height, 0, 0);
   brush.drawImage(photo, 0, 0, 1, 1);
-  if (separation > 0) separateLayers(separation, width, height);
+  if (separation > 0) separateLayers(separation, emphasis, width, height);
+  if (elapsed === duration) {
+    playing = false;
+    lastTime = null;
+    button.textContent = 'Reproduzir novamente';
+  }
+  if (playing) scheduleCake();
 }
 
 function scheduleCake() {
   if (!frame) frame = requestAnimationFrame(drawCake);
 }
 
-angles.addEventListener('load', scheduleCake);
-addEventListener('scroll', scheduleCake, {passive: true});
-addEventListener('resize', scheduleCake);
-motion.addEventListener('change', scheduleCake);
+function updateControls() {
+  controls.hidden = motion.matches || !angles.naturalWidth || !brush || !photoBrush;
+  if (motion.matches) {
+    playing = false;
+    elapsed = 0;
+    lastTime = null;
+    button.textContent = 'Reproduzir giro';
+  }
+  scheduleCake();
+}
+
+button.addEventListener('click', () => {
+  if (elapsed === duration) elapsed = 0;
+  playing = !playing;
+  lastTime = null;
+  button.textContent = playing ? 'Pausar' : elapsed ? 'Continuar' : 'Reproduzir giro';
+  scheduleCake();
+});
+
+document.addEventListener('visibilitychange', () => { lastTime = null; });
+angles.addEventListener('load', updateControls);
+motion.addEventListener('change', updateControls);
 angles.src = 'bolo-angulos.jpg';
