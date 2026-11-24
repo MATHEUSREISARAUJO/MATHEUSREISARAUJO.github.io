@@ -15,7 +15,8 @@ header{height:68px;display:flex;align-items:center;justify-content:space-between
 .bolo-sequencia{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:clamp(20px,5vw,70px)}
 .bolo-palco{position:sticky;top:8svh;align-self:start;aspect-ratio:1;margin:0;background:#151515;overflow:hidden;max-height:58svh}
 .bolo-foto{display:block;width:100%;height:100%;object-fit:cover}
-.bolo-palco canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.bolo-palco .bolo-foto,.bolo-palco canvas{object-fit:contain}
+.bolo-palco canvas{position:absolute;inset:0;width:100%;height:100%}
 .bolo-ingredientes{margin:0;padding:0;list-style:none}
 .bolo-ingredientes li{min-height:33svh;display:grid;align-content:center;padding:16px 0;border-top:1px solid #ffffff22}
 .bolo-ingredientes h3{color:var(--acento);margin:0;font-size:clamp(21px,3vw,34px);line-height:1.15}
