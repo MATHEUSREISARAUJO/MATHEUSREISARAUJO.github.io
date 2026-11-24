@@ -8,3 +8,27 @@ header{height:68px;display:flex;align-items:center;justify-content:space-between
 @media(max-width:650px){.intro,.obras{grid-template-columns:1fr}.cena{align-items:end}.abertura{padding-bottom:85px}.cena img{object-position:68% center}.cena:after{background:linear-gradient(0deg,#080b13 3%,#080b1399 35%,transparent 68%)}.rolar{bottom:23px}}
 @media(prefers-reduced-motion:reduce){.sequencia{height:auto}.cena{position:relative}.cena canvas,.rolar{display:none}}
 
+.bolo-destaque{padding:clamp(40px,6vw,80px) clamp(20px,8vw,125px);background:#101724}
+.bolo-historia{max-width:52ch;margin-bottom:clamp(22px,3vw,42px)}
+.bolo-historia>p:not(.rotulo),.bolo-ingredientes p{color:var(--suave)}
+.bolo-nota{font-size:14px}
+.bolo-sequencia{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:clamp(20px,5vw,70px)}
+.bolo-palco{position:sticky;top:8svh;align-self:start;aspect-ratio:1;margin:0;background:#151515;overflow:hidden;max-height:58svh}
+.bolo-foto{display:block;width:100%;height:100%;object-fit:cover}
+.bolo-palco canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.bolo-ingredientes{margin:0;padding:0;list-style:none}
+.bolo-ingredientes li{min-height:33svh;display:grid;align-content:center;padding:16px 0;border-top:1px solid #ffffff22}
+.bolo-ingredientes h3{color:var(--acento);margin:0;font-size:clamp(21px,3vw,34px);line-height:1.15}
+.bolo-ingredientes p{margin:8px 0 0;max-width:34ch}
+.foto.bolo-foto{height:auto;background:url(bolo-tapioca.jpg) center/cover}
+@media(min-width:1000px){.obras{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){
+  .bolo-sequencia{display:block}
+  .bolo-palco{top:0;max-height:39svh;z-index:1}
+  .bolo-ingredientes li{min-height:26svh;padding:18px 0}
+}
+@media(prefers-reduced-motion:reduce){
+  .bolo-palco{position:relative;top:auto}
+  .bolo-palco canvas{display:none}
+  .bolo-ingredientes li{min-height:0}
+}
